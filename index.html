@@ -626,7 +626,7 @@ function showDetailChart(symbol) {
   document.getElementById('detailShares').textContent = sharesChange !== 0 ? `${sharesChange > 0 ? '+' : ''}${sharesChange.toFixed(1)}%` : '-';
   document.getElementById('detailShares').style.color = sharesChange < 0 ? 'var(--accent-cyan)' : sharesChange > 0 ? 'var(--accent-red)' : 'var(--text-muted)';
 
-  const latestPrice = sorted[0]?.price || 0;
+  const latestPrice = info.current_price || sorted[0]?.price || 0;
   document.getElementById('detailPrice').textContent = latestPrice > 0 ? `$${latestPrice.toFixed(0)}` : '-';
 
   // Prepare chart data (chronological)

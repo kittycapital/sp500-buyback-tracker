@@ -21,15 +21,16 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Install dependencies
+        run: pip install yfinance
+
       - name: Fetch buyback data (50 tickers)
-        env:
-          FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
         run: python fetch_buyback.py
 
       - name: Commit and push data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add buyback_data.json sp500_tickers.json
+          git add buyback_data.json
           git diff --staged --quiet || git commit -m "📊 Update buyback data $(date -u +%Y-%m-%d)"
           git push

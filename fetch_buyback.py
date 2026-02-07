@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 API_KEY = os.environ.get("FMP_API_KEY", "")
 BATCH_SIZE = 50
 DATA_FILE = "buyback_data.json"
+TICKERS_FILE = "sp500_tickers.json"
 BASE_URL = "https://financialmodelingprep.com/api/v3"
 
 
@@ -24,24 +25,16 @@ def api_get(endpoint):
         return None
 
 
-def fetch_sp500_list():
-    """Fetch current S&P 500 constituent list from FMP (1 API call)."""
-    print("Fetching S&P 500 list...")
-    data = api_get("sp500_constituent")
-    if not data:
-        print("ERROR: Could not fetch S&P 500 list")
+def load_sp500_list():
+    """Load S&P 500 list from local JSON file (0 API calls)."""
+    print("Loading S&P 500 list from local file...")
+    if not os.path.exists(TICKERS_FILE):
+        print(f"ERROR: {TICKERS_FILE} not found")
         return None
-    result = []
-    for item in data:
-        result.append({
-            "symbol": item.get("symbol", ""),
-            "name": item.get("name", ""),
-            "sector": item.get("sector", ""),
-            "subSector": item.get("subSector", ""),
-        })
-    result.sort(key=lambda x: x["symbol"])
-    print(f"  Found {len(result)} constituents")
-    return result
+    with open(TICKERS_FILE, "r") as f:
+        data = json.load(f)
+    print(f"  Loaded {len(data)} tickers")
+    return data
 
 
 def fetch_cash_flow(symbol):
@@ -67,13 +60,6 @@ def fetch_cash_flow(symbol):
         })
 
     return quarters
-
-
-def fetch_market_cap(symbol):
-    """Fetch current market cap from company profile (uses the same quota but we skip this to save calls)."""
-    # We'll calculate approximate market cap from share price * shares outstanding
-    # or use the profile endpoint sparingly. For now, skip to save API calls.
-    return None
 
 
 def load_data():
@@ -107,17 +93,13 @@ def main():
     db = load_data()
     now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    # Step 1: Fetch S&P 500 list (1 API call)
-    sp500 = fetch_sp500_list()
+    # Step 1: Load S&P 500 list from local file (0 API calls)
+    sp500 = load_sp500_list()
     if not sp500:
-        print("Failed to fetch S&P 500 list. Trying to use cached list...")
-        if not db["sp500_list"]:
-            print("No cached list available. Exiting.")
-            sys.exit(1)
-        sp500 = db["sp500_list"]
-    else:
-        db["sp500_list"] = sp500
+        print("Failed to load S&P 500 list. Exiting.")
+        sys.exit(1)
 
+    db["sp500_list"] = sp500
     symbols = [s["symbol"] for s in sp500]
     total_batches = (len(symbols) + BATCH_SIZE - 1) // BATCH_SIZE
 
@@ -146,7 +128,7 @@ def main():
             db["data"][symbol] = {
                 "name": info.get("name", symbol),
                 "sector": info.get("sector", "Unknown"),
-                "subSector": info.get("subSector", ""),
+                "subSector": "",
                 "quarters": quarters,
                 "last_fetched": now,
             }
@@ -183,7 +165,7 @@ def main():
     print(f"  Tickers with buyback activity: {total_with_buybacks}")
     print(f"  Success: {success_count}, Failed: {fail_count}")
     print(f"  Next batch index: {db['batch_index']}")
-    print(f"  API calls used: ~{1 + len(batch_symbols)} (1 list + {len(batch_symbols)} cash flows)")
+    print(f"  API calls used: {len(batch_symbols)} (cash flows only, 0 for list)")
 
     save_data(db)
 

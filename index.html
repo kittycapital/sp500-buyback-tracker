@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>S&P 500 자사주 매입 트래커</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,20 +23,10 @@
   --accent-red: #ff4d6a;
   --accent-yellow: #ffd644;
   --accent-green: #22c55e;
-  --sector-tech: #4a90ff;
-  --sector-finance: #22c55e;
-  --sector-health: #ff4d6a;
-  --sector-consumer-disc: #ff8c42;
-  --sector-consumer-staple: #a855f7;
-  --sector-energy: #ffd644;
-  --sector-industrial: #00d4aa;
-  --sector-materials: #e879a0;
-  --sector-realestate: #64748b;
-  --sector-utilities: #818cf8;
-  --sector-comm: #f97316;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
 
 body {
   background: var(--bg-primary);
@@ -44,13 +34,14 @@ body {
   font-family: 'Noto Sans KR', sans-serif;
   line-height: 1.6;
   overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 .mono { font-family: 'JetBrains Mono', monospace; }
 
-/* Header */
+/* ====== HEADER ====== */
 .header {
-  padding: 48px 24px 32px;
+  padding: 36px 20px 24px;
   text-align: center;
   border-bottom: 1px solid var(--border);
   background: linear-gradient(180deg, #0f0f1a 0%, var(--bg-primary) 100%);
@@ -58,369 +49,370 @@ body {
 
 .header-badge {
   display: inline-block;
-  padding: 4px 14px;
+  padding: 3px 12px;
   border: 1px solid var(--accent-cyan);
   border-radius: 20px;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   color: var(--accent-cyan);
   letter-spacing: 1.5px;
   text-transform: uppercase;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .header h1 {
-  font-size: clamp(24px, 5vw, 40px);
+  font-size: clamp(22px, 5vw, 36px);
   font-weight: 900;
   background: linear-gradient(135deg, #e8e8f0 30%, var(--accent-cyan) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
+  line-height: 1.3;
 }
 
-.header p {
-  color: var(--text-secondary);
-  font-size: 14px;
-  max-width: 600px;
-  margin: 0 auto;
-}
+.header p { color: var(--text-secondary); font-size: 13px; max-width: 500px; margin: 0 auto; }
+.header-meta { margin-top: 8px; font-size: 11px; color: var(--text-muted); }
 
-/* Stats Bar */
+/* ====== STATS BAR ====== */
 .stats-bar {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 1px;
   background: var(--border);
   border-bottom: 1px solid var(--border);
 }
 
-.stat-item {
-  background: var(--bg-card);
-  padding: 20px 16px;
-  text-align: center;
-}
+.stat-item { background: var(--bg-card); padding: 14px 10px; text-align: center; }
 
 .stat-value {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 22px;
+  font-size: clamp(16px, 4vw, 22px);
   font-weight: 700;
   color: var(--accent-cyan);
+  white-space: nowrap;
 }
 
 .stat-label {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-top: 4px;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+  line-height: 1.3;
 }
 
-/* Sections */
+/* ====== SECTIONS ====== */
 .section {
-  padding: 40px 20px;
+  padding: 28px 16px;
   border-bottom: 1px solid var(--border);
   max-width: 1100px;
   margin: 0 auto;
 }
 
-.section-header {
-  margin-bottom: 28px;
-}
+.section-header { margin-bottom: 20px; }
 
 .section-num {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-size: 10px;
   color: var(--accent-cyan);
   letter-spacing: 2px;
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .section-title {
-  font-size: clamp(18px, 3.5vw, 26px);
+  font-size: clamp(17px, 3.5vw, 24px);
   font-weight: 800;
   color: var(--text-primary);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
+  line-height: 1.3;
 }
 
-.section-desc {
-  font-size: 13px;
-  color: var(--text-secondary);
-}
+.section-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
 
-/* Chart containers */
+/* ====== CHART CONTAINERS ====== */
 .chart-wrap {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 24px 16px;
-  margin-bottom: 20px;
+  border-radius: 10px;
+  padding: 16px 10px;
+  margin-bottom: 16px;
   position: relative;
   overflow: hidden;
 }
 
-.chart-wrap canvas {
-  max-height: 500px;
+.chart-wrap canvas { width: 100% !important; max-height: 400px; }
+
+/* ====== DETAIL CHART (COMPANY) ====== */
+.detail-chart-area {
+  margin-bottom: 16px;
+  display: none;
 }
 
-/* Buyback ranking bars */
-.rank-list { display: flex; flex-direction: column; gap: 6px; }
+.detail-chart-area.active { display: block; }
 
-.rank-item {
-  display: grid;
-  grid-template-columns: 32px 70px 1fr 100px;
+.detail-header {
+  display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 12px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  transition: background 0.2s;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
 }
 
-.rank-item:hover { background: var(--bg-card-hover); }
-
-.rank-num {
+.detail-ticker {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  color: var(--text-muted);
-  text-align: center;
-}
-
-.rank-ticker {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: clamp(18px, 4vw, 24px);
+  font-weight: 700;
   color: var(--accent-blue);
 }
 
-.rank-bar-wrap {
-  height: 22px;
-  background: #1a1a28;
-  border-radius: 4px;
-  overflow: hidden;
-  position: relative;
-}
-
-.rank-bar {
-  height: 100%;
-  border-radius: 4px;
-  transition: width 0.8s ease;
-  min-width: 2px;
-}
-
-.rank-bar-label {
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 10px;
-  font-family: 'JetBrains Mono', monospace;
+.detail-name {
+  font-size: clamp(12px, 2.5vw, 14px);
   color: var(--text-secondary);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.rank-amount {
+.detail-sector {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: #000;
+  font-weight: 600;
+}
+
+.detail-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.detail-stat {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 6px;
+  text-align: center;
+}
+
+.detail-stat-val {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  color: var(--text-primary);
-  text-align: right;
+  font-size: clamp(13px, 3vw, 16px);
+  font-weight: 600;
+  color: var(--accent-cyan);
 }
 
-/* Sector legend */
-.sector-legend {
+.detail-stat-lbl {
+  font-size: 9px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-top: 2px;
+}
+
+.detail-legend {
   display: flex;
+  gap: 12px;
+  margin-top: 10px;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
 }
 
-.legend-item {
+.detail-legend-item {
   display: flex;
   align-items: center;
-  gap: 5px;
-  font-size: 11px;
+  gap: 4px;
+  font-size: 10px;
   color: var(--text-secondary);
 }
 
-.legend-dot {
-  width: 8px;
-  height: 8px;
+.detail-legend-dot {
+  width: 10px;
+  height: 3px;
   border-radius: 2px;
   flex-shrink: 0;
 }
 
-/* Buyback yield table */
-.yield-table {
-  width: 100%;
-  border-collapse: collapse;
+.detail-legend-bar {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
 }
 
-.yield-table th {
-  text-align: left;
-  font-size: 10px;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--border);
-}
+/* ====== RANKING ====== */
+.rank-list { display: flex; flex-direction: column; gap: 4px; }
 
-.yield-table td {
-  padding: 10px 12px;
-  font-size: 13px;
-  border-bottom: 1px solid var(--border);
-}
-
-.yield-table tr:hover { background: var(--bg-card-hover); }
-
-.yield-val {
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 600;
-}
-
-.yield-positive { color: var(--accent-cyan); }
-.yield-sector {
-  font-size: 11px;
-  padding: 2px 8px;
-  border-radius: 4px;
-  background: #1a1a28;
-  color: var(--text-secondary);
-}
-
-/* Breadth bars */
-.breadth-legend {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
-}
-
-.breadth-legend-item {
-  display: flex;
+.rank-item {
+  display: grid;
+  grid-template-columns: 26px 54px 1fr 72px;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
-  color: var(--text-secondary);
-}
-
-.breadth-legend-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 3px;
-}
-
-/* Data status */
-.data-status {
-  text-align: center;
-  padding: 60px 20px;
-  color: var(--text-muted);
-}
-
-.data-status .spinner {
-  width: 32px;
-  height: 32px;
-  border: 3px solid var(--border);
-  border-top-color: var(--accent-cyan);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 16px;
-}
-
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* Footer */
-.footer {
-  text-align: center;
-  padding: 32px 20px;
-  font-size: 11px;
-  color: var(--text-muted);
-}
-
-/* Responsive */
-@media (max-width: 640px) {
-  .rank-item {
-    grid-template-columns: 28px 56px 1fr 80px;
-    gap: 6px;
-    padding: 6px 8px;
-  }
-  .section { padding: 28px 14px; }
-  .chart-wrap { padding: 16px 10px; }
-  .stats-bar { grid-template-columns: repeat(2, 1fr); }
-  .yield-table { font-size: 11px; }
-  .yield-table td, .yield-table th { padding: 8px 6px; }
-}
-
-/* Tab selector */
-.tab-bar {
-  display: flex;
-  gap: 4px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-}
-
-.tab-btn {
-  padding: 6px 16px;
+  padding: 7px 8px;
+  background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 6px;
-  background: transparent;
-  color: var(--text-secondary);
-  font-size: 12px;
-  font-family: 'Noto Sans KR', sans-serif;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.tab-btn:hover { background: var(--bg-card-hover); color: var(--text-primary); }
-.tab-btn.active {
-  background: var(--accent-cyan);
-  color: #000;
+.rank-item:active, .rank-item:hover { background: var(--bg-card-hover); }
+.rank-item.selected {
   border-color: var(--accent-cyan);
-  font-weight: 600;
+  background: rgba(0, 212, 170, 0.06);
+}
+
+.rank-num { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted); text-align: center; }
+.rank-ticker { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; color: var(--accent-blue); overflow: hidden; text-overflow: ellipsis; }
+
+.rank-bar-wrap { height: 20px; background: #1a1a28; border-radius: 3px; overflow: hidden; position: relative; }
+.rank-bar { height: 100%; border-radius: 3px; transition: width 0.8s ease; min-width: 2px; }
+.rank-bar-label { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); font-size: 9px; font-family: 'JetBrains Mono', monospace; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%; }
+.rank-amount { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-primary); text-align: right; white-space: nowrap; }
+
+/* ====== SECTOR LEGEND ====== */
+.sector-legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+.legend-item { display: flex; align-items: center; gap: 4px; font-size: 10px; color: var(--text-secondary); }
+.legend-dot { width: 7px; height: 7px; border-radius: 2px; flex-shrink: 0; }
+
+/* ====== YIELD TABLE ====== */
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -10px; padding: 0 10px; }
+.yield-table { width: 100%; border-collapse: collapse; min-width: 480px; }
+.yield-table th { text-align: left; font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 8px; border-bottom: 1px solid var(--border); white-space: nowrap; position: sticky; top: 0; background: var(--bg-card); }
+.yield-table td { padding: 8px 8px; font-size: 12px; border-bottom: 1px solid var(--border); }
+.yield-table tr:active { background: var(--bg-card-hover); }
+.yield-val { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+.yield-positive { color: var(--accent-cyan); }
+.yield-sector { font-size: 10px; padding: 2px 6px; border-radius: 3px; background: #1a1a28; color: var(--text-secondary); white-space: nowrap; }
+
+/* ====== BREADTH ====== */
+.breadth-legend { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.breadth-legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-secondary); }
+.breadth-legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+/* ====== STATUS ====== */
+.data-status { text-align: center; padding: 48px 16px; color: var(--text-muted); font-size: 13px; }
+.data-status .spinner { width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--accent-cyan); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 14px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ====== TABS ====== */
+.tab-bar { display: flex; gap: 4px; margin-bottom: 16px; }
+.tab-btn { padding: 6px 14px; border: 1px solid var(--border); border-radius: 6px; background: transparent; color: var(--text-secondary); font-size: 12px; font-family: 'Noto Sans KR', sans-serif; cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
+.tab-btn:active { background: var(--bg-card-hover); }
+.tab-btn.active { background: var(--accent-cyan); color: #000; border-color: var(--accent-cyan); font-weight: 600; }
+
+/* ====== FOOTER ====== */
+.footer { text-align: center; padding: 24px 16px; font-size: 10px; color: var(--text-muted); line-height: 1.6; }
+
+/* ====== DESKTOP ====== */
+@media (min-width: 641px) {
+  .header { padding: 48px 24px 32px; }
+  .header p { font-size: 14px; }
+  .stats-bar { grid-template-columns: repeat(4, 1fr); }
+  .stat-item { padding: 20px 16px; }
+  .stat-label { font-size: 11px; }
+  .section { padding: 40px 24px; }
+  .section-header { margin-bottom: 28px; }
+  .section-desc { font-size: 13px; }
+  .chart-wrap { padding: 24px 16px; border-radius: 12px; }
+  .rank-item { grid-template-columns: 32px 70px 1fr 100px; gap: 10px; padding: 8px 12px; }
+  .rank-ticker { font-size: 13px; }
+  .rank-num { font-size: 12px; }
+  .rank-bar-wrap { height: 22px; }
+  .rank-bar-label { font-size: 10px; }
+  .rank-amount { font-size: 12px; }
+  .yield-table th { font-size: 10px; padding: 10px 12px; }
+  .yield-table td { padding: 10px 12px; font-size: 13px; }
+  .yield-table tr:hover { background: var(--bg-card-hover); }
+  .breadth-legend { grid-template-columns: repeat(4, auto); gap: 16px; }
+  .footer { font-size: 11px; padding: 32px 20px; }
+}
+
+/* ====== NARROW IFRAME ====== */
+@media (max-width: 400px) {
+  .header { padding: 24px 12px 18px; }
+  .header-badge { font-size: 9px; padding: 2px 10px; margin-bottom: 8px; }
+  .header h1 { font-size: 20px; }
+  .header p { font-size: 11px; }
+  .stat-item { padding: 10px 6px; }
+  .stat-value { font-size: 15px; }
+  .stat-label { font-size: 9px; }
+  .section { padding: 20px 10px; }
+  .section-title { font-size: 16px; }
+  .section-desc { font-size: 11px; }
+  .chart-wrap { padding: 10px 6px; border-radius: 8px; }
+  .rank-item { grid-template-columns: 22px 48px 1fr 60px; gap: 4px; padding: 5px 6px; }
+  .rank-num { font-size: 10px; }
+  .rank-ticker { font-size: 11px; }
+  .rank-bar-wrap { height: 16px; }
+  .rank-bar-label { font-size: 8px; }
+  .rank-amount { font-size: 10px; }
+  .breadth-legend { grid-template-columns: 1fr; gap: 4px; }
+  .breadth-legend-item { font-size: 10px; }
+  .detail-stats { grid-template-columns: repeat(3, 1fr); gap: 4px; }
+  .detail-stat { padding: 6px 4px; }
 }
 </style>
 </head>
 <body>
 
-<!-- Header -->
 <div class="header">
   <div class="header-badge">S&P 500 Buyback Tracker</div>
   <h1>자사주 매입 트래커</h1>
-  <p>S&P 500 기업들의 자사주 매입 현황을 실시간으로 추적합니다</p>
-  <p style="margin-top:8px;font-size:12px;color:var(--text-muted)">
-    업데이트: <span id="lastUpdate" class="mono">-</span> · 
-    수집: <span id="coverage" class="mono">-</span>
-  </p>
+  <p>S&P 500 기업들의 자사주 매입 현황을 추적합니다</p>
+  <div class="header-meta">업데이트: <span id="lastUpdate" class="mono">-</span> · 수집: <span id="coverage" class="mono">-</span></div>
 </div>
 
-<!-- Stats Bar -->
 <div class="stats-bar">
-  <div class="stat-item">
-    <div class="stat-value" id="statTotalBuyback">-</div>
-    <div class="stat-label">총 매입 규모 (TTM)</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-value" id="statActiveCount">-</div>
-    <div class="stat-label">매입 활동 기업 수</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-value" id="statTopSector">-</div>
-    <div class="stat-label">최대 매입 섹터</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-value" id="statAvgYield">-</div>
-    <div class="stat-label">평균 매입 수익률</div>
-  </div>
+  <div class="stat-item"><div class="stat-value" id="statTotalBuyback">-</div><div class="stat-label">총 매입 규모 (TTM)</div></div>
+  <div class="stat-item"><div class="stat-value" id="statActiveCount">-</div><div class="stat-label">매입 활동 기업 수</div></div>
+  <div class="stat-item"><div class="stat-value" id="statTopSector">-</div><div class="stat-label">최대 매입 섹터</div></div>
+  <div class="stat-item"><div class="stat-value" id="statAvgYield">-</div><div class="stat-label">평균 매입 수익률</div></div>
 </div>
 
-<!-- Section 1: Buyback Ranking -->
+<!-- Section 1: Ranking + Detail Chart -->
 <div class="section" id="sec1">
   <div class="section-header">
     <span class="section-num">01</span>
     <div class="section-title">자사주 매입 규모 랭킹</div>
-    <div class="section-desc">최근 4분기(TTM) 기준 자사주 매입 금액 상위 30개 기업</div>
+    <div class="section-desc">종목을 클릭하면 분기별 매입 현황을 확인할 수 있습니다</div>
   </div>
+
+  <!-- Company Detail Chart (hidden until click) -->
+  <div class="detail-chart-area" id="detailArea">
+    <div class="chart-wrap">
+      <div class="detail-header">
+        <span class="detail-ticker" id="detailTicker">-</span>
+        <span class="detail-name" id="detailName">-</span>
+        <span class="detail-sector" id="detailSector">-</span>
+      </div>
+      <div class="detail-stats">
+        <div class="detail-stat">
+          <div class="detail-stat-val" id="detailTTM">-</div>
+          <div class="detail-stat-lbl">TTM 매입액</div>
+        </div>
+        <div class="detail-stat">
+          <div class="detail-stat-val" id="detailShares">-</div>
+          <div class="detail-stat-lbl">주식수 변화</div>
+        </div>
+        <div class="detail-stat">
+          <div class="detail-stat-val" id="detailPrice">-</div>
+          <div class="detail-stat-lbl">현재 주가</div>
+        </div>
+      </div>
+      <canvas id="detailChart"></canvas>
+      <div class="detail-legend">
+        <div class="detail-legend-item"><div class="detail-legend-bar" style="background:var(--accent-cyan)"></div>매입 금액</div>
+        <div class="detail-legend-item"><div class="detail-legend-dot" style="background:var(--accent-blue);height:3px"></div>주식수</div>
+        <div class="detail-legend-item"><div class="detail-legend-dot" style="background:var(--accent-orange);height:3px"></div>주가</div>
+      </div>
+    </div>
+  </div>
+
   <div class="tab-bar" id="rankTabs">
     <button class="tab-btn active" data-view="amount">매입 금액</button>
     <button class="tab-btn" data-view="yield">매입 수익률</button>
@@ -430,75 +422,59 @@ body {
   </div>
 </div>
 
-<!-- Section 2: Overall Trend -->
+<!-- Section 2 -->
 <div class="section" id="sec2">
   <div class="section-header">
     <span class="section-num">02</span>
     <div class="section-title">S&P 500 전체 자사주 매입 추이</div>
     <div class="section-desc">분기별 S&P 500 기업 전체의 자사주 매입 총액</div>
   </div>
-  <div class="chart-wrap">
-    <canvas id="trendChart"></canvas>
-  </div>
+  <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
 </div>
 
-<!-- Section 3: Sector Breakdown -->
+<!-- Section 3 -->
 <div class="section" id="sec3">
   <div class="section-header">
     <span class="section-num">03</span>
     <div class="section-title">섹터별 매입 비중</div>
     <div class="section-desc">GICS 섹터별 분기 자사주 매입 금액 비중</div>
   </div>
-  <div class="chart-wrap">
-    <canvas id="sectorChart"></canvas>
-  </div>
+  <div class="chart-wrap"><canvas id="sectorChart"></canvas></div>
 </div>
 
-<!-- Section 4: Buyback Yield Ranking -->
+<!-- Section 4 -->
 <div class="section" id="sec4">
   <div class="section-header">
     <span class="section-num">04</span>
     <div class="section-title">매입 수익률 TOP 20</div>
-    <div class="section-desc">자사주 매입액 ÷ 시가총액으로 계산한 매입 수익률 상위 기업</div>
+    <div class="section-desc">자사주 매입액 ÷ 시가총액 기준 상위 기업</div>
   </div>
-  <div class="chart-wrap" style="overflow-x:auto">
-    <table class="yield-table" id="yieldTable">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>티커</th>
-          <th>기업명</th>
-          <th>섹터</th>
-          <th>매입 수익률</th>
-          <th>매입 금액 (TTM)</th>
-        </tr>
-      </thead>
-      <tbody id="yieldBody">
-        <tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:40px">데이터 로딩중...</td></tr>
-      </tbody>
-    </table>
+  <div class="chart-wrap">
+    <div class="table-scroll">
+      <table class="yield-table" id="yieldTable">
+        <thead><tr><th>#</th><th>티커</th><th>기업명</th><th>섹터</th><th>수익률</th><th>매입액</th></tr></thead>
+        <tbody id="yieldBody"><tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px">데이터 로딩중...</td></tr></tbody>
+      </table>
+    </div>
   </div>
 </div>
 
-<!-- Section 5: Participation Breadth -->
+<!-- Section 5 -->
 <div class="section" id="sec5">
   <div class="section-header">
     <span class="section-num">05</span>
     <div class="section-title">매입 기업 수 추이</div>
-    <div class="section-desc">분기별 자사주 매입 활동 기업 수 (매입 강도별 분류)</div>
+    <div class="section-desc">분기별 자사주 매입 활동 기업 수 (매입 강도별)</div>
   </div>
   <div class="breadth-legend">
-    <div class="breadth-legend-item"><div class="breadth-legend-dot" style="background:var(--accent-cyan)"></div>대규모 매입 (매출의 3%↑)</div>
+    <div class="breadth-legend-item"><div class="breadth-legend-dot" style="background:var(--accent-cyan)"></div>대규모 (>$1B)</div>
     <div class="breadth-legend-item"><div class="breadth-legend-dot" style="background:var(--accent-blue)"></div>중간 매입</div>
     <div class="breadth-legend-item"><div class="breadth-legend-dot" style="background:var(--accent-purple)"></div>소규모 매입</div>
     <div class="breadth-legend-item"><div class="breadth-legend-dot" style="background:#2a2a3a"></div>매입 없음</div>
   </div>
-  <div class="chart-wrap">
-    <canvas id="breadthChart"></canvas>
-  </div>
+  <div class="chart-wrap"><canvas id="breadthChart"></canvas></div>
 </div>
 
-<!-- Footer -->
 <div class="footer">
   데이터 출처: Yahoo Finance (yfinance) · 매일 50개 종목 업데이트 (10일 주기 순환)<br>
   자사주 매입 데이터는 분기 재무제표 기반이며, 실시간 매입 집행 내역과 다를 수 있습니다.
@@ -506,453 +482,476 @@ body {
 
 <script>
 // ============================================
-// CONFIGURATION & GLOBALS
+// CONFIG
 // ============================================
 const DATA_URL = 'buyback_data.json';
+const IS_MOBILE = window.innerWidth < 641;
+const IS_NARROW = window.innerWidth < 401;
+
+let GLOBAL_DATA = null;
+let detailChartInstance = null;
+let selectedSymbol = null;
 
 const SECTOR_COLORS = {
-  'Technology': '#4a90ff',
-  'Information Technology': '#4a90ff',
-  'Financial Services': '#22c55e',
-  'Financials': '#22c55e',
-  'Healthcare': '#ff4d6a',
-  'Health Care': '#ff4d6a',
-  'Consumer Cyclical': '#ff8c42',
-  'Consumer Discretionary': '#ff8c42',
-  'Consumer Defensive': '#a855f7',
-  'Consumer Staples': '#a855f7',
-  'Energy': '#ffd644',
-  'Industrials': '#00d4aa',
-  'Basic Materials': '#e879a0',
-  'Materials': '#e879a0',
-  'Real Estate': '#64748b',
-  'Utilities': '#818cf8',
-  'Communication Services': '#f97316',
+  'Technology':'#4a90ff','Information Technology':'#4a90ff',
+  'Financial Services':'#22c55e','Financials':'#22c55e',
+  'Healthcare':'#ff4d6a','Health Care':'#ff4d6a',
+  'Consumer Cyclical':'#ff8c42','Consumer Discretionary':'#ff8c42',
+  'Consumer Defensive':'#a855f7','Consumer Staples':'#a855f7',
+  'Energy':'#ffd644','Industrials':'#00d4aa',
+  'Basic Materials':'#e879a0','Materials':'#e879a0',
+  'Real Estate':'#64748b','Utilities':'#818cf8',
+  'Communication Services':'#f97316',
 };
 
 const SECTOR_KO = {
-  'Technology': '기술',
-  'Information Technology': '기술',
-  'Financial Services': '금융',
-  'Financials': '금융',
-  'Healthcare': '헬스케어',
-  'Health Care': '헬스케어',
-  'Consumer Cyclical': '경기소비재',
-  'Consumer Discretionary': '경기소비재',
-  'Consumer Defensive': '필수소비재',
-  'Consumer Staples': '필수소비재',
-  'Energy': '에너지',
-  'Industrials': '산업재',
-  'Basic Materials': '소재',
-  'Materials': '소재',
-  'Real Estate': '부동산',
-  'Utilities': '유틸리티',
-  'Communication Services': '커뮤니케이션',
+  'Technology':'기술','Information Technology':'기술',
+  'Financial Services':'금융','Financials':'금융',
+  'Healthcare':'헬스케어','Health Care':'헬스케어',
+  'Consumer Cyclical':'경기소비재','Consumer Discretionary':'경기소비재',
+  'Consumer Defensive':'필수소비재','Consumer Staples':'필수소비재',
+  'Energy':'에너지','Industrials':'산업재',
+  'Basic Materials':'소재','Materials':'소재',
+  'Real Estate':'부동산','Utilities':'유틸리티',
+  'Communication Services':'커뮤니케이션',
 };
 
-function getSectorColor(sector) {
-  return SECTOR_COLORS[sector] || '#666';
-}
-
-function getSectorKo(sector) {
-  return SECTOR_KO[sector] || sector;
-}
-
-function formatBillions(val) {
-  const abs = Math.abs(val);
-  if (abs >= 1e12) return `$${(abs / 1e12).toFixed(1)}T`;
-  if (abs >= 1e9) return `$${(abs / 1e9).toFixed(1)}B`;
-  if (abs >= 1e6) return `$${(abs / 1e6).toFixed(0)}M`;
-  return `$${abs.toLocaleString()}`;
-}
-
-function formatKoreanBillions(val) {
-  const abs = Math.abs(val);
-  const 조 = 1e12;
-  const 억 = 1e8;
-  if (abs >= 조) return `${(abs / 조).toFixed(1)}조원`;
-  if (abs >= 억 * 100) return `${(abs / 억).toFixed(0)}억원`;
-  return `${(abs / 억).toFixed(1)}억원`;
+function getSectorColor(s) { return SECTOR_COLORS[s] || '#666'; }
+function getSectorKo(s) { return SECTOR_KO[s] || s; }
+function formatB(v) {
+  const a = Math.abs(v);
+  if (a >= 1e12) return `$${(a/1e12).toFixed(1)}T`;
+  if (a >= 1e9) return `$${(a/1e9).toFixed(1)}B`;
+  if (a >= 1e6) return `$${(a/1e6).toFixed(0)}M`;
+  return `$${a.toLocaleString()}`;
 }
 
 // ============================================
 // DATA PROCESSING
 // ============================================
-
-function getTTMBuyback(quarters) {
-  // Get most recent 4 quarters
-  const sorted = [...quarters].sort((a, b) => b.date.localeCompare(a.date));
-  const recent4 = sorted.slice(0, 4);
-  // commonStockRepurchased is negative (cash outflow), so sum and negate
-  return recent4.reduce((sum, q) => sum + Math.abs(Math.min(q.buyback_amount, 0)), 0);
+function getTTMBuyback(q) {
+  const s = [...q].sort((a,b) => b.date.localeCompare(a.date));
+  return s.slice(0,4).reduce((t,x) => t + Math.abs(Math.min(x.buyback_amount,0)), 0);
 }
 
-function getLatestShares(quarters) {
-  const sorted = [...quarters].sort((a, b) => b.date.localeCompare(a.date));
-  return sorted[0]?.shares_outstanding || 0;
-}
-
-function getQuarterLabel(dateStr) {
-  const d = new Date(dateStr);
-  const q = Math.ceil((d.getMonth() + 1) / 3);
-  return `${d.getFullYear()} Q${q}`;
-}
-
-function getAllQuarters(data) {
-  const qSet = new Set();
-  Object.values(data).forEach(d => {
-    d.quarters.forEach(q => qSet.add(getQuarterLabel(q.date)));
-  });
-  return [...qSet].sort();
+function getQuarterLabel(d) {
+  const dt = new Date(d);
+  return `${dt.getFullYear()} Q${Math.ceil((dt.getMonth()+1)/3)}`;
 }
 
 function getQuarterlyAggregates(data) {
-  const quarters = {};
-  Object.entries(data).forEach(([symbol, info]) => {
-    info.quarters.forEach(q => {
-      const label = getQuarterLabel(q.date);
-      if (!quarters[label]) quarters[label] = { total: 0, bySector: {}, companies: { heavy: 0, medium: 0, light: 0, none: 0 } };
-      const buyback = Math.abs(Math.min(q.buyback_amount, 0));
-      quarters[label].total += buyback;
-
-      const sector = info.sector || 'Unknown';
-      quarters[label].bySector[sector] = (quarters[label].bySector[sector] || 0) + buyback;
-
-      // Categorize intensity (rough thresholds)
-      if (buyback > 1e9) quarters[label].companies.heavy++;
-      else if (buyback > 1e8) quarters[label].companies.medium++;
-      else if (buyback > 0) quarters[label].companies.light++;
-      else quarters[label].companies.none++;
+  const q = {};
+  Object.entries(data).forEach(([,info]) => {
+    info.quarters.forEach(x => {
+      const l = getQuarterLabel(x.date);
+      if (!q[l]) q[l] = { total:0, bySector:{}, companies:{heavy:0,medium:0,light:0,none:0} };
+      const bb = Math.abs(Math.min(x.buyback_amount,0));
+      q[l].total += bb;
+      const sec = info.sector||'Unknown';
+      q[l].bySector[sec] = (q[l].bySector[sec]||0) + bb;
+      if (bb > 1e9) q[l].companies.heavy++;
+      else if (bb > 1e8) q[l].companies.medium++;
+      else if (bb > 0) q[l].companies.light++;
+      else q[l].companies.none++;
     });
   });
-  return quarters;
+  return q;
+}
+
+// ============================================
+// CHART DEFAULTS
+// ============================================
+function chartDefaults() {
+  return {
+    responsive: true,
+    maintainAspectRatio: true,
+    aspectRatio: IS_NARROW ? 1 : IS_MOBILE ? 1.3 : 2,
+    interaction: { mode:'index', intersect:false },
+    plugins: {
+      tooltip: {
+        backgroundColor:'#1a1a28', titleColor:'#e8e8f0', bodyColor:'#e8e8f0',
+        borderColor:'#2a2a40', borderWidth:1,
+        titleFont:{ size: IS_MOBILE?11:12 }, bodyFont:{ size: IS_MOBILE?11:12 },
+        padding: IS_MOBILE?8:10,
+      }
+    },
+    scales: {
+      x: {
+        ticks: {
+          color:'#55556a',
+          font:{ size: IS_NARROW?8:IS_MOBILE?9:10, family:'JetBrains Mono' },
+          maxRotation: IS_MOBILE?60:45, autoSkip:true,
+          maxTicksLimit: IS_NARROW?6:IS_MOBILE?8:20,
+        },
+        grid:{ color:'#1e1e30', display:false }
+      },
+      y: {
+        ticks: {
+          color:'#55556a',
+          font:{ size: IS_NARROW?8:IS_MOBILE?9:10, family:'JetBrains Mono' },
+          maxTicksLimit: IS_MOBILE?5:8,
+        },
+        grid:{ color:'#1e1e30' }
+      }
+    }
+  };
+}
+
+// ============================================
+// COMPANY DETAIL CHART
+// ============================================
+function showDetailChart(symbol) {
+  const info = GLOBAL_DATA[symbol];
+  if (!info) return;
+
+  selectedSymbol = symbol;
+  const area = document.getElementById('detailArea');
+  area.classList.add('active');
+
+  // Update header
+  document.getElementById('detailTicker').textContent = symbol;
+  document.getElementById('detailName').textContent = info.name || '';
+  const sectorEl = document.getElementById('detailSector');
+  sectorEl.textContent = getSectorKo(info.sector);
+  sectorEl.style.background = getSectorColor(info.sector);
+
+  // Stats
+  const ttm = getTTMBuyback(info.quarters);
+  document.getElementById('detailTTM').textContent = formatB(ttm);
+
+  const sorted = [...info.quarters].sort((a,b) => b.date.localeCompare(a.date));
+  const latestShares = sorted[0]?.shares_outstanding || 0;
+  const oldestShares = sorted[sorted.length-1]?.shares_outstanding || 0;
+  const sharesChange = oldestShares > 0 ? ((latestShares - oldestShares) / oldestShares * 100) : 0;
+  document.getElementById('detailShares').textContent = sharesChange !== 0 ? `${sharesChange > 0 ? '+' : ''}${sharesChange.toFixed(1)}%` : '-';
+  document.getElementById('detailShares').style.color = sharesChange < 0 ? 'var(--accent-cyan)' : sharesChange > 0 ? 'var(--accent-red)' : 'var(--text-muted)';
+
+  const latestPrice = sorted[0]?.price || 0;
+  document.getElementById('detailPrice').textContent = latestPrice > 0 ? `$${latestPrice.toFixed(0)}` : '-';
+
+  // Prepare chart data (chronological)
+  const chronoQ = [...info.quarters].sort((a,b) => a.date.localeCompare(b.date));
+  const labels = chronoQ.map(q => getQuarterLabel(q.date));
+  const buybackVals = chronoQ.map(q => Math.abs(Math.min(q.buyback_amount, 0)) / 1e9);
+  const sharesVals = chronoQ.map(q => q.shares_outstanding > 0 ? q.shares_outstanding / 1e9 : null);
+  const priceVals = chronoQ.map(q => q.price > 0 ? q.price : null);
+
+  // Destroy old chart
+  if (detailChartInstance) detailChartInstance.destroy();
+
+  const ctx = document.getElementById('detailChart').getContext('2d');
+  const datasets = [
+    {
+      label: '매입 금액 ($B)',
+      type: 'bar',
+      data: buybackVals,
+      backgroundColor: 'rgba(0, 212, 170, 0.7)',
+      borderColor: '#00d4aa',
+      borderWidth: 1,
+      borderRadius: 3,
+      yAxisID: 'y',
+      order: 2,
+    }
+  ];
+
+  const scales = {
+    x: {
+      ticks: {
+        color:'#55556a',
+        font:{ size: IS_NARROW?7:IS_MOBILE?8:10, family:'JetBrains Mono' },
+        maxRotation:60, autoSkip:true,
+        maxTicksLimit: IS_NARROW?5:IS_MOBILE?6:12,
+      },
+      grid:{ display:false }
+    },
+    y: {
+      position: 'left',
+      title: { display: !IS_NARROW, text: '매입 금액 ($B)', color:'#00d4aa', font:{ size:10 } },
+      ticks: { color:'#55556a', font:{ size: IS_MOBILE?8:10, family:'JetBrains Mono' }, callback: v => `$${v.toFixed(1)}B` },
+      grid:{ color:'#1e1e30' },
+    }
+  };
+
+  // Add shares line if data available
+  const hasShares = sharesVals.some(v => v !== null && v > 0);
+  if (hasShares) {
+    datasets.push({
+      label: '주식수 (B)',
+      type: 'line',
+      data: sharesVals,
+      borderColor: '#4a90ff',
+      backgroundColor: 'rgba(74,144,255,0.1)',
+      borderWidth: 2,
+      pointRadius: IS_MOBILE ? 1 : 2,
+      pointHoverRadius: 4,
+      tension: 0.3,
+      yAxisID: 'y1',
+      order: 1,
+    });
+    scales.y1 = {
+      position: 'right',
+      title: { display: !IS_NARROW, text: '주식수 (B)', color:'#4a90ff', font:{ size:10 } },
+      ticks: { color:'#55556a', font:{ size: IS_MOBILE?8:10, family:'JetBrains Mono' }, callback: v => `${v.toFixed(1)}B` },
+      grid:{ display:false },
+    };
+  }
+
+  // Add price line if data available
+  const hasPrice = priceVals.some(v => v !== null && v > 0);
+  if (hasPrice) {
+    const priceAxisId = hasShares ? 'y2' : 'y1';
+    datasets.push({
+      label: '주가 ($)',
+      type: 'line',
+      data: priceVals,
+      borderColor: '#ff8c42',
+      backgroundColor: 'rgba(255,140,66,0.1)',
+      borderWidth: 2,
+      borderDash: [4, 2],
+      pointRadius: IS_MOBILE ? 0 : 2,
+      pointHoverRadius: 4,
+      tension: 0.3,
+      yAxisID: priceAxisId,
+      order: 0,
+    });
+    if (!hasShares) {
+      scales.y1 = {
+        position: 'right',
+        title: { display: !IS_NARROW, text: '주가 ($)', color:'#ff8c42', font:{ size:10 } },
+        ticks: { color:'#55556a', font:{ size: IS_MOBILE?8:10, family:'JetBrains Mono' }, callback: v => `$${v}` },
+        grid:{ display:false },
+      };
+    } else {
+      scales.y2 = {
+        position: 'right',
+        title: { display: false },
+        ticks: { color:'#55556a', font:{ size: IS_MOBILE?8:9, family:'JetBrains Mono' }, callback: v => `$${v}`, maxTicksLimit: 4 },
+        grid:{ display:false },
+      };
+    }
+  }
+
+  detailChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      aspectRatio: IS_NARROW ? 1.1 : IS_MOBILE ? 1.4 : 2.2,
+      interaction: { mode:'index', intersect:false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor:'#1a1a28', titleColor:'#e8e8f0', bodyColor:'#e8e8f0',
+          borderColor:'#2a2a40', borderWidth:1,
+          titleFont:{ size:11 }, bodyFont:{ size:11 }, padding:8,
+          callbacks: {
+            label: function(ctx) {
+              const lbl = ctx.dataset.label;
+              if (lbl.includes('매입')) return `매입: $${ctx.parsed.y.toFixed(2)}B`;
+              if (lbl.includes('주식')) return `주식수: ${ctx.parsed.y.toFixed(2)}B`;
+              if (lbl.includes('주가')) return `주가: $${ctx.parsed.y.toFixed(2)}`;
+              return `${lbl}: ${ctx.parsed.y}`;
+            }
+          }
+        }
+      },
+      scales
+    }
+  });
+
+  // Highlight selected in ranking
+  document.querySelectorAll('.rank-item').forEach(el => {
+    el.classList.toggle('selected', el.dataset.symbol === symbol);
+  });
+
+  // Scroll to chart
+  area.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 // ============================================
 // RENDERING
 // ============================================
-
 function renderStats(data) {
-  let totalTTM = 0;
-  let activeCount = 0;
+  let totalTTM = 0, activeCount = 0;
   const sectorTotals = {};
-
   Object.values(data).forEach(info => {
     const ttm = getTTMBuyback(info.quarters);
     totalTTM += ttm;
     if (ttm > 0) activeCount++;
-    const sector = info.sector || 'Unknown';
-    sectorTotals[sector] = (sectorTotals[sector] || 0) + ttm;
+    const sec = info.sector||'Unknown';
+    sectorTotals[sec] = (sectorTotals[sec]||0) + ttm;
   });
-
-  document.getElementById('statTotalBuyback').textContent = formatBillions(totalTTM);
+  document.getElementById('statTotalBuyback').textContent = formatB(totalTTM);
   document.getElementById('statActiveCount').textContent = `${activeCount}개`;
-
-  const topSector = Object.entries(sectorTotals).sort((a, b) => b[1] - a[1])[0];
-  document.getElementById('statTopSector').textContent = topSector ? getSectorKo(topSector[0]) : '-';
-
-  // Average buyback yield (rough - using shares * approximate price from free cash flow ratio)
+  const top = Object.entries(sectorTotals).sort((a,b) => b[1]-a[1])[0];
+  document.getElementById('statTopSector').textContent = top ? getSectorKo(top[0]) : '-';
   document.getElementById('statAvgYield').textContent = activeCount > 0 ? `${activeCount}개 활동중` : '-';
 }
 
-function renderRanking(data, viewType = 'amount') {
+function renderRanking(data, viewType) {
   const container = document.getElementById('rankListContainer');
-
   const items = Object.entries(data).map(([symbol, info]) => ({
-    symbol,
-    name: info.name,
-    sector: info.sector,
+    symbol, name: info.name, sector: info.sector,
     ttm: getTTMBuyback(info.quarters),
-    shares: getLatestShares(info.quarters),
+    marketCap: info.market_cap || 0,
   })).filter(d => d.ttm > 0);
 
-  items.sort((a, b) => b.ttm - a.ttm);
+  if (viewType === 'yield') {
+    items.forEach(d => d.yieldPct = d.marketCap > 0 ? (d.ttm / d.marketCap * 100) : 0);
+    items.sort((a,b) => b.yieldPct - a.yieldPct);
+  } else {
+    items.sort((a,b) => b.ttm - a.ttm);
+  }
+
   const top30 = items.slice(0, 30);
-  const maxVal = top30[0]?.ttm || 1;
+  const maxVal = viewType === 'yield' ? (top30[0]?.yieldPct||1) : (top30[0]?.ttm||1);
+  const nameLen = IS_NARROW ? 10 : IS_MOBILE ? 14 : 20;
 
   let html = '<div class="rank-list">';
   top30.forEach((item, i) => {
-    const pct = (item.ttm / maxVal * 100).toFixed(1);
+    const val = viewType === 'yield' ? item.yieldPct : item.ttm;
+    const pct = (val / maxVal * 100).toFixed(1);
     const color = getSectorColor(item.sector);
+    const display = viewType === 'yield' ? `${item.yieldPct.toFixed(1)}%` : formatB(item.ttm);
+    const sel = item.symbol === selectedSymbol ? ' selected' : '';
     html += `
-      <div class="rank-item">
-        <div class="rank-num">${i + 1}</div>
+      <div class="rank-item${sel}" data-symbol="${item.symbol}" onclick="showDetailChart('${item.symbol}')">
+        <div class="rank-num">${i+1}</div>
         <div class="rank-ticker">${item.symbol}</div>
         <div class="rank-bar-wrap">
           <div class="rank-bar" style="width:${pct}%;background:${color}"></div>
-          <div class="rank-bar-label">${item.name?.substring(0, 20) || ''}</div>
+          <div class="rank-bar-label">${item.name?.substring(0, nameLen)||''}</div>
         </div>
-        <div class="rank-amount">${formatBillions(item.ttm)}</div>
+        <div class="rank-amount">${display}</div>
       </div>`;
   });
   html += '</div>';
 
-  // Add sector legend
-  const sectorsUsed = [...new Set(top30.map(d => d.sector))].filter(Boolean);
+  const secs = [...new Set(top30.map(d => d.sector))].filter(Boolean);
   html += '<div class="sector-legend">';
-  sectorsUsed.forEach(s => {
+  secs.forEach(s => {
     html += `<div class="legend-item"><div class="legend-dot" style="background:${getSectorColor(s)}"></div>${getSectorKo(s)}</div>`;
   });
   html += '</div>';
-
   container.innerHTML = html;
 }
 
 function renderTrendChart(data) {
   const agg = getQuarterlyAggregates(data);
   const labels = Object.keys(agg).sort();
-  // Show last 20 quarters max (5 years)
-  const recent = labels.slice(-20);
+  const recent = labels.slice(IS_MOBILE ? -12 : -20);
   const values = recent.map(q => agg[q].total / 1e9);
+  const opts = chartDefaults();
+  opts.plugins.legend = { display:false };
+  opts.plugins.tooltip.callbacks = { label: ctx => `$${ctx.parsed.y.toFixed(1)}B` };
+  opts.scales.y.ticks.callback = v => `$${v}B`;
 
-  const ctx = document.getElementById('trendChart').getContext('2d');
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
+  new Chart(document.getElementById('trendChart').getContext('2d'), {
+    type:'bar', data: {
       labels: recent,
-      datasets: [{
-        label: '자사주 매입 총액 ($B)',
-        data: values,
-        backgroundColor: values.map(v => {
-          const max = Math.max(...values);
-          const ratio = v / max;
-          return `rgba(0, 212, 170, ${0.3 + ratio * 0.7})`;
-        }),
-        borderColor: 'rgba(0, 212, 170, 0.8)',
-        borderWidth: 1,
-        borderRadius: 4,
+      datasets: [{ label:'매입 총액', data:values,
+        backgroundColor: values.map(v => { const r = v/Math.max(...values); return `rgba(0,212,170,${0.3+r*0.7})`; }),
+        borderColor:'rgba(0,212,170,0.8)', borderWidth:1, borderRadius:3,
       }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      aspectRatio: window.innerWidth < 640 ? 1.2 : 2,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#1a1a28',
-          titleColor: '#e8e8f0',
-          bodyColor: '#e8e8f0',
-          borderColor: '#2a2a40',
-          borderWidth: 1,
-          callbacks: {
-            label: ctx => `$${ctx.parsed.y.toFixed(1)}B`
-          }
-        }
-      },
-      scales: {
-        x: {
-          ticks: { color: '#55556a', font: { size: 10, family: 'JetBrains Mono' }, maxRotation: 45 },
-          grid: { color: '#1e1e30' }
-        },
-        y: {
-          ticks: {
-            color: '#55556a',
-            font: { size: 10, family: 'JetBrains Mono' },
-            callback: v => `$${v}B`
-          },
-          grid: { color: '#1e1e30' }
-        }
-      }
-    }
+    }, options: opts
   });
 }
 
 function renderSectorChart(data) {
   const agg = getQuarterlyAggregates(data);
-  const labels = Object.keys(agg).sort().slice(-12);
-
-  // Get all sectors
-  const allSectors = new Set();
-  labels.forEach(q => Object.keys(agg[q].bySector).forEach(s => allSectors.add(s)));
-  const sectors = [...allSectors].sort();
-
-  const datasets = sectors.map(sector => ({
-    label: getSectorKo(sector),
-    data: labels.map(q => (agg[q].bySector[sector] || 0) / 1e9),
-    backgroundColor: getSectorColor(sector) + 'cc',
-    borderColor: getSectorColor(sector),
-    borderWidth: 1,
+  const labels = Object.keys(agg).sort().slice(IS_MOBILE ? -8 : -12);
+  const allSec = new Set();
+  labels.forEach(q => Object.keys(agg[q].bySector).forEach(s => allSec.add(s)));
+  const datasets = [...allSec].sort().map(sec => ({
+    label: getSectorKo(sec),
+    data: labels.map(q => (agg[q].bySector[sec]||0)/1e9),
+    backgroundColor: getSectorColor(sec)+'cc', borderColor: getSectorColor(sec), borderWidth:1,
   }));
+  const opts = chartDefaults();
+  opts.scales.x.stacked = true; opts.scales.y.stacked = true;
+  opts.scales.y.ticks.callback = v => `$${v}B`;
+  opts.plugins.legend = { position:'bottom', labels:{ color:'#8888a8', font:{ size: IS_MOBILE?9:10 }, boxWidth: IS_MOBILE?8:12, padding: IS_MOBILE?6:10, usePointStyle:true } };
+  opts.plugins.tooltip.callbacks = { label: ctx => `${ctx.dataset.label}: $${ctx.parsed.y.toFixed(1)}B` };
 
-  const ctx = document.getElementById('sectorChart').getContext('2d');
-  new Chart(ctx, {
-    type: 'bar',
-    data: { labels, datasets },
-    options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      aspectRatio: window.innerWidth < 640 ? 1 : 2,
-      plugins: {
-        legend: {
-          position: 'bottom',
-          labels: { color: '#8888a8', font: { size: 10 }, boxWidth: 12, padding: 10, usePointStyle: true }
-        },
-        tooltip: {
-          backgroundColor: '#1a1a28',
-          titleColor: '#e8e8f0',
-          bodyColor: '#e8e8f0',
-          borderColor: '#2a2a40',
-          borderWidth: 1,
-          callbacks: { label: ctx => `${ctx.dataset.label}: $${ctx.parsed.y.toFixed(1)}B` }
-        }
-      },
-      scales: {
-        x: {
-          stacked: true,
-          ticks: { color: '#55556a', font: { size: 10, family: 'JetBrains Mono' }, maxRotation: 45 },
-          grid: { display: false }
-        },
-        y: {
-          stacked: true,
-          ticks: {
-            color: '#55556a',
-            font: { size: 10, family: 'JetBrains Mono' },
-            callback: v => `$${v}B`
-          },
-          grid: { color: '#1e1e30' }
-        }
-      }
-    }
+  new Chart(document.getElementById('sectorChart').getContext('2d'), {
+    type:'bar', data:{ labels, datasets }, options:opts
   });
 }
 
 function renderYieldTable(data) {
   const items = Object.entries(data).map(([symbol, info]) => {
     const ttm = getTTMBuyback(info.quarters);
-    const marketCap = info.market_cap || 0;
-    // Buyback yield = TTM buyback / market cap
-    const buybackYield = marketCap > 0 ? (ttm / marketCap * 100) : 0;
-    return { symbol, name: info.name, sector: info.sector, ttm, marketCap, buybackYield };
-  }).filter(d => d.ttm > 0 && d.buybackYield > 0);
+    const mc = info.market_cap||0;
+    const yld = mc > 0 ? (ttm/mc*100) : 0;
+    return { symbol, name:info.name, sector:info.sector, ttm, yld };
+  }).filter(d => d.ttm > 0 && d.yld > 0);
+  items.sort((a,b) => b.yld - a.yld);
+  const nameLen = IS_NARROW ? 12 : IS_MOBILE ? 16 : 25;
 
-  items.sort((a, b) => b.buybackYield - a.buybackYield);
-  const top20 = items.slice(0, 20);
-
-  const tbody = document.getElementById('yieldBody');
-  tbody.innerHTML = top20.map((item, i) => `
+  document.getElementById('yieldBody').innerHTML = items.slice(0,20).map((item,i) => `
     <tr>
-      <td class="mono" style="color:var(--text-muted)">${i + 1}</td>
+      <td class="mono" style="color:var(--text-muted)">${i+1}</td>
       <td><span class="mono" style="color:var(--accent-blue);font-weight:600">${item.symbol}</span></td>
-      <td style="font-size:12px;color:var(--text-secondary)">${item.name?.substring(0, 25) || '-'}</td>
+      <td style="font-size:11px;color:var(--text-secondary)">${item.name?.substring(0,nameLen)||'-'}</td>
       <td><span class="yield-sector">${getSectorKo(item.sector)}</span></td>
-      <td class="yield-val yield-positive mono">${item.buybackYield.toFixed(2)}%</td>
-      <td class="mono" style="color:var(--text-primary)">${formatBillions(item.ttm)}</td>
-    </tr>
-  `).join('');
+      <td class="yield-val yield-positive mono">${item.yld.toFixed(2)}%</td>
+      <td class="mono" style="color:var(--text-primary)">${formatB(item.ttm)}</td>
+    </tr>`).join('');
 }
 
 function renderBreadthChart(data) {
   const agg = getQuarterlyAggregates(data);
-  const labels = Object.keys(agg).sort().slice(-16);
+  const labels = Object.keys(agg).sort().slice(IS_MOBILE ? -10 : -16);
+  const opts = chartDefaults();
+  opts.scales.x.stacked = true; opts.scales.y.stacked = true;
+  opts.scales.y.ticks.callback = v => `${v}개`;
+  opts.plugins.legend = { display:false };
+  opts.plugins.tooltip.callbacks = { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y}개사` };
 
-  const ctx = document.getElementById('breadthChart').getContext('2d');
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
+  new Chart(document.getElementById('breadthChart').getContext('2d'), {
+    type:'bar', data: {
       labels,
       datasets: [
-        {
-          label: '대규모 매입 (>$1B)',
-          data: labels.map(q => agg[q].companies.heavy),
-          backgroundColor: '#00d4aacc',
-          borderColor: '#00d4aa',
-          borderWidth: 1,
-        },
-        {
-          label: '중간 매입 ($100M-$1B)',
-          data: labels.map(q => agg[q].companies.medium),
-          backgroundColor: '#4a90ffcc',
-          borderColor: '#4a90ff',
-          borderWidth: 1,
-        },
-        {
-          label: '소규모 매입 (<$100M)',
-          data: labels.map(q => agg[q].companies.light),
-          backgroundColor: '#a855f7cc',
-          borderColor: '#a855f7',
-          borderWidth: 1,
-        },
-        {
-          label: '매입 없음',
-          data: labels.map(q => agg[q].companies.none),
-          backgroundColor: '#2a2a3a',
-          borderColor: '#3a3a4a',
-          borderWidth: 1,
-        },
+        { label:'대규모 (>$1B)', data:labels.map(q=>agg[q].companies.heavy), backgroundColor:'#00d4aacc', borderColor:'#00d4aa', borderWidth:1 },
+        { label:'중간 매입', data:labels.map(q=>agg[q].companies.medium), backgroundColor:'#4a90ffcc', borderColor:'#4a90ff', borderWidth:1 },
+        { label:'소규모 매입', data:labels.map(q=>agg[q].companies.light), backgroundColor:'#a855f7cc', borderColor:'#a855f7', borderWidth:1 },
+        { label:'매입 없음', data:labels.map(q=>agg[q].companies.none), backgroundColor:'#2a2a3a', borderColor:'#3a3a4a', borderWidth:1 },
       ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      aspectRatio: window.innerWidth < 640 ? 1.2 : 2,
-      plugins: {
-        legend: {
-          position: 'bottom',
-          labels: { color: '#8888a8', font: { size: 10 }, boxWidth: 12, padding: 10, usePointStyle: true }
-        },
-        tooltip: {
-          backgroundColor: '#1a1a28',
-          titleColor: '#e8e8f0',
-          bodyColor: '#e8e8f0',
-          borderColor: '#2a2a40',
-          borderWidth: 1,
-          callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y}개사` }
-        }
-      },
-      scales: {
-        x: {
-          stacked: true,
-          ticks: { color: '#55556a', font: { size: 10, family: 'JetBrains Mono' }, maxRotation: 45 },
-          grid: { display: false }
-        },
-        y: {
-          stacked: true,
-          ticks: {
-            color: '#55556a',
-            font: { size: 10, family: 'JetBrains Mono' },
-            callback: v => `${v}개`
-          },
-          grid: { color: '#1e1e30' }
-        }
-      }
-    }
+    }, options:opts
   });
 }
 
 // ============================================
-// TAB HANDLING
+// TABS & INIT
 // ============================================
 function setupTabs(data) {
-  document.querySelectorAll('#rankTabs .tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('#rankTabs .tab-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      renderRanking(data, btn.dataset.view);
+  const tabs = document.querySelectorAll('#rankTabs .tab-btn');
+  tabs.forEach(btn => {
+    btn.addEventListener('click', function() {
+      tabs.forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      renderRanking(data, this.dataset.view);
     });
   });
 }
 
-// ============================================
-// INIT
-// ============================================
 async function init() {
   try {
     const resp = await fetch(DATA_URL);
     if (!resp.ok) throw new Error('Data not found');
     const raw = await resp.json();
-
     const data = raw.data || {};
-    const totalTickers = raw.sp500_list?.length || 500;
-    const collectedTickers = Object.keys(data).length;
+    GLOBAL_DATA = data;
+    const total = raw.sp500_list?.length || 500;
+    const collected = Object.keys(data).length;
 
-    // Update header info
-    document.getElementById('lastUpdate').textContent = raw.last_updated?.substring(0, 10) || '-';
-    document.getElementById('coverage').textContent = `${collectedTickers}/${totalTickers}개`;
+    document.getElementById('lastUpdate').textContent = raw.last_updated?.substring(0,10) || '-';
+    document.getElementById('coverage').textContent = `${collected}/${total}개`;
 
-    if (collectedTickers < 10) {
+    if (collected < 10) {
       document.getElementById('rankListContainer').innerHTML =
-        '<div class="data-status">아직 충분한 데이터가 수집되지 않았습니다.<br>매일 50개 종목씩 수집중입니다. (현재 ' + collectedTickers + '개)</div>';
+        '<div class="data-status">아직 충분한 데이터가 수집되지 않았습니다.<br>매일 50개 종목씩 수집중입니다. (현재 '+collected+'개)</div>';
       return;
     }
 
@@ -963,6 +962,12 @@ async function init() {
     renderYieldTable(data);
     renderBreadthChart(data);
     setupTabs(data);
+
+    // Auto-select #1 ranked company
+    const topSymbol = Object.entries(data)
+      .map(([s,i]) => ({ s, ttm: getTTMBuyback(i.quarters) }))
+      .sort((a,b) => b.ttm - a.ttm)[0]?.s;
+    if (topSymbol) showDetailChart(topSymbol);
 
   } catch (e) {
     console.error('Failed to load data:', e);

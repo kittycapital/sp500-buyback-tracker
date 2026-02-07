@@ -91,6 +91,34 @@ def fetch_buyback_data(symbol):
                 "free_cash_flow": fcf,
             })
 
+        # Get quarterly closing prices from historical data
+        prices = {}
+        try:
+            hist = ticker.history(period="5y", interval="1mo")
+            if hist is not None and not hist.empty:
+                for idx, row in hist.iterrows():
+                    # Use end-of-quarter months (3,6,9,12) closest price
+                    date_key = idx.strftime("%Y-%m")
+                    prices[date_key] = round(float(row['Close']), 2)
+        except Exception:
+            pass
+
+        # Match prices to quarters
+        for q in quarters:
+            q_date = q["date"][:7]  # "YYYY-MM"
+            q["price"] = prices.get(q_date, 0)
+            # Try nearby months if exact match not found
+            if q["price"] == 0:
+                y, m = int(q_date[:4]), int(q_date[5:7])
+                for offset in [1, -1, 2, -2]:
+                    nm = m + offset
+                    ny = y + (nm - 1) // 12
+                    nm = ((nm - 1) % 12) + 1
+                    alt_key = f"{ny}-{nm:02d}"
+                    if alt_key in prices:
+                        q["price"] = prices[alt_key]
+                        break
+
         return {"quarters": quarters, "market_cap": market_cap}
 
     except Exception as e:

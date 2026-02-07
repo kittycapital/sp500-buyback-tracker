@@ -1,0 +1,35 @@
+name: Fetch S&P 500 Buyback Data
+
+on:
+  schedule:
+    # 7:00 AM KST = 10:00 PM UTC (previous day)
+    - cron: '0 22 * * *'
+  workflow_dispatch:  # Manual trigger
+
+permissions:
+  contents: write
+
+jobs:
+  fetch-buyback:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Fetch buyback data (50 tickers)
+        env:
+          FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
+        run: python fetch_buyback.py
+
+      - name: Commit and push data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add buyback_data.json
+          git diff --staged --quiet || git commit -m "📊 Update buyback data $(date -u +%Y-%m-%d)"
+          git push

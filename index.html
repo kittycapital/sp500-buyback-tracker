@@ -500,7 +500,7 @@ body {
 
 <!-- Footer -->
 <div class="footer">
-  데이터 출처: Financial Modeling Prep · 매일 50개 종목 업데이트 (10일 주기 순환)<br>
+  데이터 출처: Yahoo Finance (yfinance) · 매일 50개 종목 업데이트 (10일 주기 순환)<br>
   자사주 매입 데이터는 분기 재무제표 기반이며, 실시간 매입 집행 내역과 다를 수 있습니다.
 </div>
 
@@ -818,17 +818,15 @@ function renderSectorChart(data) {
 }
 
 function renderYieldTable(data) {
-  // Approximate buyback yield using TTM buyback / (shares * last known share price)
-  // Since we don't have price, we'll rank by absolute TTM per share as proxy
   const items = Object.entries(data).map(([symbol, info]) => {
     const ttm = getTTMBuyback(info.quarters);
-    const shares = getLatestShares(info.quarters);
-    // Use TTM buyback relative to shares as a proxy for yield
-    const yieldProxy = shares > 0 ? (ttm / shares) : 0;
-    return { symbol, name: info.name, sector: info.sector, ttm, shares, yieldProxy };
-  }).filter(d => d.ttm > 0 && d.yieldProxy > 0);
+    const marketCap = info.market_cap || 0;
+    // Buyback yield = TTM buyback / market cap
+    const buybackYield = marketCap > 0 ? (ttm / marketCap * 100) : 0;
+    return { symbol, name: info.name, sector: info.sector, ttm, marketCap, buybackYield };
+  }).filter(d => d.ttm > 0 && d.buybackYield > 0);
 
-  items.sort((a, b) => b.yieldProxy - a.yieldProxy);
+  items.sort((a, b) => b.buybackYield - a.buybackYield);
   const top20 = items.slice(0, 20);
 
   const tbody = document.getElementById('yieldBody');
@@ -838,7 +836,7 @@ function renderYieldTable(data) {
       <td><span class="mono" style="color:var(--accent-blue);font-weight:600">${item.symbol}</span></td>
       <td style="font-size:12px;color:var(--text-secondary)">${item.name?.substring(0, 25) || '-'}</td>
       <td><span class="yield-sector">${getSectorKo(item.sector)}</span></td>
-      <td class="yield-val yield-positive mono">$${item.yieldProxy.toFixed(2)}/주</td>
+      <td class="yield-val yield-positive mono">${item.buybackYield.toFixed(2)}%</td>
       <td class="mono" style="color:var(--text-primary)">${formatBillions(item.ttm)}</td>
     </tr>
   `).join('');

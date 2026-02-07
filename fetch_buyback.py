@@ -28,7 +28,7 @@ def load_sp500_list():
 
 
 def fetch_buyback_data(symbol):
-    """Fetch quarterly cash flow data using yfinance (free, no API key)."""
+    """Fetch quarterly cash flow + shares + price using yfinance."""
     try:
         ticker = yf.Ticker(symbol)
 
@@ -37,9 +37,52 @@ def fetch_buyback_data(symbol):
         if cf is None or cf.empty:
             return None
 
-        # Get current market cap for yield calculation
+        # Get current market cap and price
         info = ticker.fast_info
         market_cap = getattr(info, 'market_cap', 0) or 0
+        current_price = getattr(info, 'last_price', 0) or 0
+        current_shares = getattr(info, 'shares', 0) or 0
+
+        # Get shares outstanding from balance sheet (more reliable)
+        shares_data = {}
+        try:
+            bs = ticker.quarterly_balance_sheet
+            if bs is not None and not bs.empty:
+                for col in bs.columns:
+                    dk = col.strftime("%Y-%m") if hasattr(col, 'strftime') else str(col)[:7]
+                    for key in ['Ordinary Shares Number', 'Share Issued',
+                                'Common Stock Shares Outstanding', 'OrdinarySharesNumber']:
+                        if key in bs.index:
+                            val = bs.loc[key, col]
+                            if val is not None and str(val) != 'nan' and float(val) > 0:
+                                shares_data[dk] = float(val)
+                                break
+        except Exception:
+            pass
+
+        # Get monthly closing prices
+        prices = {}
+        try:
+            hist = ticker.history(period="5y", interval="1mo")
+            if hist is not None and not hist.empty:
+                for idx, row in hist.iterrows():
+                    prices[idx.strftime("%Y-%m")] = round(float(row['Close']), 2)
+        except Exception:
+            pass
+
+        def find_nearby(data_dict, date_key):
+            """Find value in dict, trying nearby months if exact match missing."""
+            if date_key in data_dict:
+                return data_dict[date_key]
+            y, m = int(date_key[:4]), int(date_key[5:7])
+            for offset in [1, -1, 2, -2, 3, -3]:
+                nm = m + offset
+                ny = y + (nm - 1) // 12
+                nm = ((nm - 1) % 12) + 1
+                alt = f"{ny}-{nm:02d}"
+                if alt in data_dict:
+                    return data_dict[alt]
+            return 0
 
         quarters = []
         for col in cf.columns:
@@ -47,8 +90,9 @@ def fetch_buyback_data(symbol):
             year = str(col.year) if hasattr(col, 'year') else date_str[:4]
             month = col.month if hasattr(col, 'month') else int(date_str[5:7])
             q_num = (month - 1) // 3 + 1
+            q_key = date_str[:7]
 
-            # Extract buyback data - yfinance uses "Repurchase Of Capital Stock"
+            # Buyback amount
             buyback = 0
             for key in ['Repurchase Of Capital Stock', 'Common Stock Repurchased',
                         'RepurchaseOfCapitalStock']:
@@ -58,19 +102,17 @@ def fetch_buyback_data(symbol):
                         buyback = float(val)
                         break
 
-            # Shares outstanding
-            shares = 0
-            for key in ['Diluted Average Shares', 'Basic Average Shares',
-                        'DilutedAverageShares']:
-                if key in cf.index:
-                    val = cf.loc[key, col]
-                    if val is not None and str(val) != 'nan':
-                        shares = float(val)
-                        break
-
-            # If shares not in cash flow, try from balance sheet
+            # Shares: balance sheet > cash flow > fast_info
+            shares = find_nearby(shares_data, q_key)
             if shares == 0:
-                shares = getattr(info, 'shares', 0) or 0
+                for key in ['Diluted Average Shares', 'Basic Average Shares']:
+                    if key in cf.index:
+                        val = cf.loc[key, col]
+                        if val is not None and str(val) != 'nan' and float(val) > 0:
+                            shares = float(val)
+                            break
+            if shares == 0:
+                shares = current_shares
 
             # Free cash flow
             fcf = 0
@@ -81,6 +123,9 @@ def fetch_buyback_data(symbol):
                         fcf = float(val)
                         break
 
+            # Price
+            price = find_nearby(prices, q_key)
+
             quarters.append({
                 "date": date_str,
                 "period": f"Q{q_num}",
@@ -89,37 +134,10 @@ def fetch_buyback_data(symbol):
                 "shares_outstanding": shares,
                 "shares_diluted": shares,
                 "free_cash_flow": fcf,
+                "price": price,
             })
 
-        # Get quarterly closing prices from historical data
-        prices = {}
-        try:
-            hist = ticker.history(period="5y", interval="1mo")
-            if hist is not None and not hist.empty:
-                for idx, row in hist.iterrows():
-                    # Use end-of-quarter months (3,6,9,12) closest price
-                    date_key = idx.strftime("%Y-%m")
-                    prices[date_key] = round(float(row['Close']), 2)
-        except Exception:
-            pass
-
-        # Match prices to quarters
-        for q in quarters:
-            q_date = q["date"][:7]  # "YYYY-MM"
-            q["price"] = prices.get(q_date, 0)
-            # Try nearby months if exact match not found
-            if q["price"] == 0:
-                y, m = int(q_date[:4]), int(q_date[5:7])
-                for offset in [1, -1, 2, -2]:
-                    nm = m + offset
-                    ny = y + (nm - 1) // 12
-                    nm = ((nm - 1) % 12) + 1
-                    alt_key = f"{ny}-{nm:02d}"
-                    if alt_key in prices:
-                        q["price"] = prices[alt_key]
-                        break
-
-        return {"quarters": quarters, "market_cap": market_cap}
+        return {"quarters": quarters, "market_cap": market_cap, "current_price": current_price}
 
     except Exception as e:
         print(f"Error: {e}")
@@ -127,7 +145,6 @@ def fetch_buyback_data(symbol):
 
 
 def load_data():
-    """Load existing data file or create empty structure."""
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, "r") as f:
             return json.load(f)
@@ -143,10 +160,8 @@ def load_data():
 
 
 def save_data(data):
-    """Save data to JSON file."""
     with open(DATA_FILE, "w") as f:
         json.dump(data, f)
-    # Check file size
     size_mb = os.path.getsize(DATA_FILE) / (1024 * 1024)
     print(f"Data saved to {DATA_FILE} ({size_mb:.1f} MB)")
 
@@ -155,7 +170,6 @@ def main():
     db = load_data()
     now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    # Step 1: Load S&P 500 list from local file
     sp500 = load_sp500_list()
     if not sp500:
         print("Failed to load S&P 500 list. Exiting.")
@@ -165,7 +179,6 @@ def main():
     symbols = [s["symbol"] for s in sp500]
     total_batches = (len(symbols) + BATCH_SIZE - 1) // BATCH_SIZE
 
-    # Step 2: Determine current batch
     batch_index = db.get("batch_index", 0) % total_batches
     start = batch_index * BATCH_SIZE
     end = min(start + BATCH_SIZE, len(symbols))
@@ -174,10 +187,7 @@ def main():
     print(f"\nBatch {batch_index + 1}/{total_batches}: fetching {len(batch_symbols)} tickers")
     print(f"  Range: {batch_symbols[0]} ~ {batch_symbols[-1]}")
 
-    # Build a lookup for name/sector from sp500 list
     info_lookup = {s["symbol"]: s for s in sp500}
-
-    # Step 3: Fetch data for each ticker using yfinance
     success_count = 0
     fail_count = 0
 
@@ -193,19 +203,20 @@ def main():
                 "subSector": "",
                 "quarters": result["quarters"],
                 "market_cap": result["market_cap"],
+                "current_price": result["current_price"],
                 "last_fetched": now,
             }
             buyback_total = sum(abs(min(q["buyback_amount"], 0)) for q in result["quarters"])
-            print(f"OK ({len(result['quarters'])} quarters, buyback: ${buyback_total/1e9:.1f}B)")
+            has_shares = any(q["shares_outstanding"] > 0 for q in result["quarters"])
+            has_price = any(q.get("price", 0) > 0 for q in result["quarters"])
+            print(f"OK ({len(result['quarters'])}Q, bb:${buyback_total/1e9:.1f}B, shares:{'✓' if has_shares else '✗'}, price:{'✓' if has_price else '✗'})")
             success_count += 1
         else:
             print("FAILED")
             fail_count += 1
 
-        # Small delay to avoid rate limiting
         time.sleep(0.5)
 
-    # Step 4: Update metadata
     db["last_updated"] = now
     db["batch_index"] = (batch_index + 1) % total_batches
     db["total_batches"] = total_batches
@@ -217,7 +228,6 @@ def main():
         db["full_cycles_completed"] = db.get("full_cycles_completed", 0) + 1
         print(f"\n🎉 Full cycle completed! (#{db['full_cycles_completed']})")
 
-    # Step 5: Summary
     total_tickers_collected = len(db["data"])
     total_with_buybacks = sum(
         1 for v in db["data"].values()
@@ -225,11 +235,10 @@ def main():
     )
 
     print(f"\n--- Summary ---")
-    print(f"  Tickers collected so far: {total_tickers_collected}/{len(symbols)}")
-    print(f"  Tickers with buyback activity: {total_with_buybacks}")
+    print(f"  Tickers collected: {total_tickers_collected}/{len(symbols)}")
+    print(f"  With buyback activity: {total_with_buybacks}")
     print(f"  Success: {success_count}, Failed: {fail_count}")
-    print(f"  Next batch index: {db['batch_index']}")
-    print(f"  No API key needed (yfinance)")
+    print(f"  Next batch: {db['batch_index']}")
 
     save_data(db)
 

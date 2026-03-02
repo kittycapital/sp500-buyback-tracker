@@ -133,14 +133,18 @@ body {
   padding: 16px 10px;
   margin-bottom: 16px;
   position: relative;
-  height: 340px;
+  overflow: hidden;
 }
 
-.chart-wrap canvas { width: 100% !important; height: 100% !important; }
+.chart-inner {
+  position: relative;
+  width: 100%;
+  height: 300px;
+}
 
-@media (max-width: 1024px) { .chart-wrap { height: 320px; } }
-@media (max-width: 640px) { .chart-wrap { height: 280px; } }
-@media (max-width: 400px) { .chart-wrap { height: 260px; } }
+@media (max-width: 1024px) { .chart-inner { height: 280px; } }
+@media (max-width: 640px) { .chart-inner { height: 240px; } }
+@media (max-width: 400px) { .chart-inner { height: 220px; } }
 
 /* Watermark */
 .chart-wrap::after {
@@ -477,7 +481,7 @@ body {
     <div class="section-title">S&P 500 전체 자사주 매입 추이</div>
     <div class="section-desc">분기별 S&P 500 기업 전체의 자사주 매입 총액</div>
   </div>
-  <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+  <div class="chart-wrap"><div class="chart-inner"><canvas id="trendChart"></canvas></div></div>
 </div>
 
 <!-- Section 3 -->
@@ -487,7 +491,7 @@ body {
     <div class="section-title">섹터별 매입 비중</div>
     <div class="section-desc">GICS 섹터별 분기 자사주 매입 금액 비중</div>
   </div>
-  <div class="chart-wrap"><canvas id="sectorChart"></canvas></div>
+  <div class="chart-wrap"><div class="chart-inner"><canvas id="sectorChart"></canvas></div></div>
 </div>
 
 <!-- Section 4 -->
@@ -520,7 +524,7 @@ body {
     <div class="breadth-legend-item"><div class="breadth-legend-dot" style="background:var(--accent-purple)"></div>소규모 매입</div>
     <div class="breadth-legend-item"><div class="breadth-legend-dot" style="background:#2a2a3a"></div>매입 없음</div>
   </div>
-  <div class="chart-wrap"><canvas id="breadthChart"></canvas></div>
+  <div class="chart-wrap"><div class="chart-inner"><canvas id="breadthChart"></canvas></div></div>
 </div>
 
 <div class="footer">
@@ -608,6 +612,8 @@ const DATA_URL = 'buyback_data.json';
 const IS_MOBILE = window.innerWidth < 641;
 const IS_NARROW = window.innerWidth < 401;
 const IS_TABLET = window.innerWidth >= 641 && window.innerWidth <= 1024;
+
+Chart.defaults.resizeDelay = 500;
 
 let GLOBAL_DATA = null;
 let detailChartInstance = null;
@@ -982,7 +988,7 @@ function renderSectorChart(data) {
   const opts = chartDefaults();
   opts.scales.x.stacked = true; opts.scales.y.stacked = true;
   opts.scales.y.ticks.callback = v => `$${v}B`;
-  opts.plugins.legend = { position:'bottom', labels:{ color:'#71717a', font:{ size: IS_MOBILE?9:10 }, boxWidth: IS_MOBILE?8:12, padding: IS_MOBILE?6:10, usePointStyle:true } };
+  opts.plugins.legend = { display:false };
   opts.plugins.tooltip.callbacks = { label: ctx => `${ctx.dataset.label}: $${ctx.parsed.y.toFixed(1)}B` };
 
   new Chart(document.getElementById('sectorChart').getContext('2d'), {

@@ -135,7 +135,7 @@ body {
   position: relative;
 }
 
-.chart-wrap canvas { width: 100% !important; max-height: 400px; }
+.chart-wrap canvas { width: 100% !important; }
 
 /* Watermark */
 .chart-wrap::after {
@@ -594,6 +594,7 @@ function copyLink(btn) {
 const DATA_URL = 'buyback_data.json';
 const IS_MOBILE = window.innerWidth < 641;
 const IS_NARROW = window.innerWidth < 401;
+const IS_TABLET = window.innerWidth >= 641 && window.innerWidth <= 1024;
 
 let GLOBAL_DATA = null;
 let detailChartInstance = null;
@@ -672,7 +673,8 @@ function chartDefaults() {
   return {
     responsive: true,
     maintainAspectRatio: true,
-    aspectRatio: IS_NARROW ? 1 : IS_MOBILE ? 1.3 : 2,
+    resizeDelay: 200,
+    aspectRatio: IS_NARROW ? 1 : IS_MOBILE ? 1.3 : IS_TABLET ? 1.5 : 2,
     interaction: { mode:'index', intersect:false },
     plugins: {
       tooltip: {
@@ -838,7 +840,8 @@ function showDetailChart(symbol) {
     options: {
       responsive: true,
       maintainAspectRatio: true,
-      aspectRatio: IS_NARROW ? 1.1 : IS_MOBILE ? 1.4 : 2.2,
+      resizeDelay: 200,
+      aspectRatio: IS_NARROW ? 1.1 : IS_MOBILE ? 1.4 : IS_TABLET ? 1.6 : 2.2,
       interaction: { mode:'index', intersect:false },
       plugins: {
         legend: { display: false },

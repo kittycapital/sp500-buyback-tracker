@@ -133,9 +133,14 @@ body {
   padding: 16px 10px;
   margin-bottom: 16px;
   position: relative;
+  height: 340px;
 }
 
-.chart-wrap canvas { width: 100% !important; }
+.chart-wrap canvas { width: 100% !important; height: 100% !important; }
+
+@media (max-width: 1024px) { .chart-wrap { height: 320px; } }
+@media (max-width: 640px) { .chart-wrap { height: 280px; } }
+@media (max-width: 400px) { .chart-wrap { height: 260px; } }
 
 /* Watermark */
 .chart-wrap::after {
@@ -161,6 +166,14 @@ body {
 }
 
 .detail-chart-area.active { display: block; }
+
+.detail-canvas-wrap {
+  position: relative; width: 100%; height: 300px;
+}
+.detail-canvas-wrap canvas { width: 100% !important; height: 100% !important; }
+@media (max-width: 1024px) { .detail-canvas-wrap { height: 280px; } }
+@media (max-width: 640px) { .detail-canvas-wrap { height: 240px; } }
+@media (max-width: 400px) { .detail-canvas-wrap { height: 220px; } }
 
 .detail-header {
   display: flex;
@@ -439,7 +452,7 @@ body {
           <div class="detail-stat-lbl">현재 주가</div>
         </div>
       </div>
-      <canvas id="detailChart"></canvas>
+      <div class="detail-canvas-wrap"><canvas id="detailChart"></canvas></div>
       <div class="detail-legend">
         <div class="detail-legend-item"><div class="detail-legend-bar" style="background:var(--cyan)"></div>매입 금액</div>
         <div class="detail-legend-item"><div class="detail-legend-dot" style="background:var(--accent-blue);height:3px"></div>주식수</div>
@@ -672,9 +685,7 @@ function getQuarterlyAggregates(data) {
 function chartDefaults() {
   return {
     responsive: true,
-    maintainAspectRatio: true,
-    resizeDelay: 200,
-    aspectRatio: IS_NARROW ? 1 : IS_MOBILE ? 1.3 : IS_TABLET ? 1.5 : 2,
+    maintainAspectRatio: false,
     interaction: { mode:'index', intersect:false },
     plugins: {
       tooltip: {
@@ -839,9 +850,7 @@ function showDetailChart(symbol) {
     data: { labels, datasets },
     options: {
       responsive: true,
-      maintainAspectRatio: true,
-      resizeDelay: 200,
-      aspectRatio: IS_NARROW ? 1.1 : IS_MOBILE ? 1.4 : IS_TABLET ? 1.6 : 2.2,
+      maintainAspectRatio: false,
       interaction: { mode:'index', intersect:false },
       plugins: {
         legend: { display: false },

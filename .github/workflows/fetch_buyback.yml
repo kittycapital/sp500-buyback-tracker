@@ -3,7 +3,7 @@ name: Fetch S&P 500 Buyback Data
 on:
   schedule:
     # 7:00 AM KST = 10:00 PM UTC (previous day)
-    - cron: '0 22 * * *'
+    - cron: '0 22 * * 0-4'  # 평일만 (Sun-Thu UTC = Mon-Fri KST)
   workflow_dispatch:  # Manual trigger
 
 permissions:
